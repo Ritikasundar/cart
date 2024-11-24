@@ -1,0 +1,53 @@
+//docker
+
+sudo apt update
+docker --version
+
+sudo usermod -aG docker $USER
+
+sudo systemctl start docker
+sudo systemctl status docker
+
+mkdir test
+cd test
+
+touch readme.txt
+touch Dockerfile
+
+ls
+gedit Dockerfile
+
+FROM ubuntu
+CMD ["echo","hello I am docker"]
+
+sudo docker build -t mydocker .
+sudo docker images
+sudo docker run mydocker
+
+create repo
+
+sudo chown -R $(whoami) ~/.docker
+docker login
+
+docker tag mydocker:latest ritikasundar/cloudeg
+docker images
+docker push ritikasundar/cloudeg:latest
+
+sudo docker pull ritikasundar/cloudeg:latest
+sudo docker images
+sudo docker run ritikasundar/cloudeg:latest
+
+docker rmi nginx:latest
+docker images
+
+sudo docker logs cloudeg
+sudo docker info
+
+sudo docker run -it ubuntu bash
+sudo docker ps
+
+docker ps
+docker ps -a
+
+docker kill id
+docker rm id id 

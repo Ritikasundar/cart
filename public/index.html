@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food App</title>
+    <style>
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        /* Header styles */
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        /* Button styles */
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #005f73;
+        }
+
+        /* User info styles */
+        #user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        #profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        /* Form styles */
+        .form {
+            margin-bottom: 20px;
+        }
+
+        .form h2 {
+            color: #333;
+        }
+
+        .form input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #submit {
+            background-color: #4CAF50;
+        }
+
+        /* Food list styles */
+        #food-list {
+            margin-top: 20px;
+        }
+
+        #food-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #food-item img {
+            margin-right: 10px;
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Food App</h1>
+        <!-- Auth buttons with dynamic functionality -->
+        <div>
+            <button id="login" onclick="login()">Login</button>
+            <button id="logout" onclick="logout()" style="display: none;">Logout</button>
+        </div>
+        <!-- Profile Picture -->
+        <div id="user-info" style="display: none;">
+            <img id="profile-pic" src="default-user.png" alt="user" />
+            <div id="user-details">
+                <p id="user-name"></p>
+                <p id="user-email"></p>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="form">
+            <h2>Add Food Item</h2>
+            <input id="name" type="text" placeholder="Food name" />
+            <input id="price" type="text" placeholder="Price" />
+            <button id="submit" type="submit" onclick="addFoodItems()">Add Food Item</button>
+        </div>
+        <div class="currency-converter">
+            <h2>Currency Converter</h2>
+            <input id="amount" type="number" placeholder="Amount" />
+            <input id="fromCurrency" type="text" placeholder="From Currency (e.g., USD)" />
+            <input id="toCurrency" type="text" placeholder="To Currency (e.g., EUR)" />
+            <button onclick="convertCurrency()">Convert</button>
+            <p id="conversion-result"></p>
+        </div>
+        <div id="food-list"></div>
+    </div>
+
+    <script>
+
+async function convertCurrency() {
+            const amount = document.getElementById('amount').value;
+            const fromCurrency = document.getElementById('fromCurrency').value.toUpperCase();
+            const toCurrency = document.getElementById('toCurrency').value.toUpperCase();
+
+            if (!amount || !fromCurrency || !toCurrency) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/convert-currency', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ amount, fromCurrency, toCurrency })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('conversion-result').textContent = `Converted Amount: ${result.convertedAmount} ${toCurrency}`;
+                } else {
+                    alert('Error converting currency');
+                }
+            } catch (error) {
+                console.error('Error converting currency:', error);
+                alert('Error occurred while converting currency');
+            }
+        }
+
+        // Handle Auth0 login/logout actions
+        function login() {
+            window.location.href = '/login';
+        }
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+
+        // Fetch and display user profile
+        async function fetchUserProfile() {
+            try {
+                const response = await fetch('/profile');
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('profile-pic').src = user.picture;
+                    document.getElementById('user-name').textContent = user.name;
+                    document.getElementById('user-email').textContent = user.email;
+                    document.getElementById('user-info').style.display = 'flex';
+                    document.getElementById('login').style.display = 'none';
+                    document.getElementById('logout').style.display = 'inline';
+                }
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+            }
+        }
+
+        // Function to add food items
+        async function addFoodItems() {
+            const foodname = document.getElementById('name');
+            const foodprice = document.getElementById('price');
+
+            const name = foodname.value.trim();
+            const price = foodprice.value.trim();
+
+            if (!name || !price) {
+                alert("Please fill in both fields");
+                return;
+            }
+
+            try {
+                const response = await fetch('/add-food', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: name, cost: price })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert("Food item added successfully");
+                    fetchFoodItems(); // Re-fetch the food items to update the list
+                } else {
+                    alert("Error adding food");
+                }
+            } catch (error) {
+                console.error("Error: " + error);
+                alert("Error occurred while adding food item");
+            }
+        }
+
+        // Function to fetch and display food items
+        async function fetchFoodItems() {
+            try {
+                const response = await fetch('/get-food');
+                const result = await response.json();
+                const foodlist = document.getElementById('food-list');
+                foodlist.innerHTML = "";
+
+                result.forEach(element => {
+                    foodlist.innerHTML += `
+                        <div id="food-item">
+                            <img src="https://www.dropbox.com/scl/fi/gx359kf8266kvcal1x39o/chapati.png?rlkey=glc1tjmp4txgniqtb61lof1t6&st=2d20zbz3&dl=1" alt="${element.name}"> ${element.name} - ${element.cost}
+                            <button onclick="editFood('${element._id}', '${element.name}', '${element.cost}')">Edit</button>
+                            <button onclick="deleteFood('${element._id}')">Delete</button>
+                        </div>`;
+                });
+            } catch (err) {
+                console.log("Error fetching food items: " + err);
+            }
+        }
+
+        // Editing food item
+        async function editFood(id, name, cost) {
+            const newName = prompt("Enter new food name", name);
+            const newCost = prompt("Enter new cost", cost);
+
+            if (newName && newCost) {
+                await updateFood(id, newName, newCost);
+            }
+        }
+
+        async function updateFood(id, name, cost) {
+            try {
+                const response = await fetch(`/update-food/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: name, cost: cost })
+                });
+
+                if (response.ok) {
+                    alert('Food item updated successfully');
+                    fetchFoodItems(); // Refresh the list
+                } else {
+                    alert('Error updating food item');
+                }
+            } catch (error) {
+                console.error("Error updating food: " + error);
+                alert('Error occurred while updating food item');
+            }
+        }
+
+        // Deleting food item
+        async function deleteFood(id) {
+            try {
+                const response = await fetch(`/delete-food/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Food item deleted successfully');
+                    fetchFoodItems(); // Refresh the list
+                } else {
+                    alert('Error deleting food item');
+                }
+            } catch (error) {
+                console.error("Error deleting food: " + error);
+                alert('Error occurred while deleting food item');
+            }
+        }
+
+        // Fetch user profile and food items on page load
+        window.onload = function () {
+            fetchFoodItems();
+            fetchUserProfile();
+        };
+    </script>
+</body>
+</html>

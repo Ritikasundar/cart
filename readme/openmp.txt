@@ -1,0 +1,96 @@
+//openmp
+-fopenmp
+-lgomp -pthread
+
+#include <stdio.h>
+#include <omp.h>
+int main(){
+int x;
+x = 2;
+#pragma omp parallel num_threads(2) shared(x)
+{ if (omp_get_thread_num() == 0) {
+x = 5;
+} else {
+printf("1: Thread# %d: x = %d\n", omp_get_thread_num(),x );
+}
+#pragma omp barrier
+if (omp_get_thread_num() == 0) {
+printf("2: Thread# %d: x = %d\n", omp_get_thread_num(),x );
+} else {
+printf("3: Thread# %d: x = %d\n", omp_get_thread_num(),x ); } } return 0;}
+
+
+code 2
+#include <stdio.h>
+
+#include <omp.h>
+
+int main(){
+
+int i,n=100;
+
+int array [100],sum=0;
+for(i=0;i<n;i++){
+
+array[i]=i+1;
+
+}
+
+#pragma omp parallel for reduction(+:sum)
+
+for(i=0;i<n;i++){
+
+
+sum+=array[i];
+
+}
+
+printf("Total sum of array elements %d\n",sum);
+return 0;
+
+}
+
+code 3
+#include <stdio.h>
+#include <omp.h>
+
+int main() {
+    int i, n = 100;
+    int array[100];
+    int max = 0;  // To store the maximum value in the array
+
+    // Initialize the array
+    for (i = 0; i < n; i++) {
+        array[i] = i + 1;
+    }
+
+    // Parallel loop to find the maximum value
+    #pragma omp parallel for reduction(max:max)
+    for (i = 0; i < n; i++) {
+        if (array[i] > max) {
+            max = array[i];
+        }
+    }
+
+    printf("Maximum value in the array: %d\n", max);
+    return 0;
+}
+
+
+code4 
+#include <stdio.h>
+
+#include <omp.h>
+
+int main(){
+
+#pragma omp parallel for 
+for(int i=0;i<10;i++){
+
+printf("%i from thread number %i \n",i,omp_get_thread_num());
+
+}
+
+return 0;
+
+}

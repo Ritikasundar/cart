@@ -1,0 +1,18 @@
+//Hadoop
+
+sudo apt update
+sudo apt install openjdk-11-jdk -y
+java -version;javac -version 
+sudo apt install openssh-server openssh-client -y
+
+
+sudo adduser hdoop
+su - hdoop
+ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 0600 ~/.ssh/authorized_keys
+ssh localhost
+
+wget https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz
+tar xzf hadoop-3.4.0.tar.gz

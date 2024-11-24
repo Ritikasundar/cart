@@ -1,0 +1,221 @@
+npm init -y
+npm install express
+
+npm install mongodb
+
+npm install express-openid-connect
+npm install node-fetch@2
+
+npm install firebase
+npm install -g firebase-tools
+firebase login
+firebase init
+firebase deploy
+
+sudo apt update
+sudo apt install mpich
+mpiexec -version
+#include <mpi.h>
+#include <stdio.h>
+
+int main(int argc, char** argv) {
+    MPI_Init(&argc, &argv); // Initialize MPI environment
+
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size); // Get total number of processes
+
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank); // Get rank of the process
+
+    printf("Hello from process %d out of %d!\n", world_rank, world_size);
+
+    MPI_Finalize(); // Finalize MPI environment
+    return 0;
+}
+mpicc -o hello_mpi hello_mpi.c
+mpirun -np 4 ./hello_mpi
+
+
+sudo apt update
+sudo apt install openjdk-11-jdk
+wget https://dlcdn.apache.org/spark/spark-3.5.0/spark-3.5.0-bin-hadoop3.tgz
+tar -xvzf spark-3.5.0-bin-hadoop3.tgz
+# Spark environment
+export SPARK_HOME=/home/tce/spark-3.4.1-bin-hadoop3
+export PATH=$SPARK_HOME/bin:$PATH
+
+# Java environment (if not already set)
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+
+echo "hello world hello spark spark is awesome" > /tmp/wordcount.txt
+val input = sc.textFile("/tmp/wordcount.txt")
+val words = input.flatMap(line => line.split(" "))
+val wordCounts = words.map(word => (word, 1))
+val counts = wordCounts.reduceByKey((x, y) => x + y)
+counts.collect().foreach(println)
+
+
+
+1)docker –version
+2)docker images
+3)sudo systemctl start docker
+4) sudo systemctl enable docker 
+5)docker pull httpd
+6)docker images 
+7)docker run –it –d httpd
+ 
+8)docker ps
+ 
+8)docker ps -a
+  
+9)docker exec –it container id bash
+10)exit
+ 
+11)docker stop container_id
+ 
+12)docker rm container_id
+ 
+ 
+13)docker stop container_id
+ 
+14)docker kill container_id
+ 
+ 
+15)docker commit container_id geekflare/httpd_image
+ 
+16)docker login
+ 
+17)docker info
+ 
+18)docker history httpd
+ 
+19)docker logs container_id
+ 
+20)docker search helloworld
+ 
+21)docker update --help
+ 
+22)docker volume create
+ 
+23)docker plugin install vieux/sshfs DEBUG=1
+ 
+24)docker logout
+
+
+
+.download mingw from the following link
+https://sourceforge.net/projects/mingw-w64/
+3.extract the folder and paste it in the codeblocks folder
+4.open codeblocks>settings>other compiler options
+Type -fopenmp
+5.go to linker settings and type -lgomp -pthread in other linker options
+
+6.go to toolchain executables and select auto detect,small device c compiler will be detected
+
+7.go to new>project and select console application
+
+8.select c
+9.give a title and select path
+
+10.select finish
+11.click main.c
+
+12.build and run the code
+13.run the following code
+#include <stdio.h>
+#include <omp.h>
+int main(){
+int x;
+x = 2;
+#pragma omp parallel num_threads(2) shared(x)
+{ if (omp_get_thread_num() == 0) {
+x = 5;
+} else {
+printf("1: Thread# %d: x = %d\n", omp_get_thread_num(),x );
+} #pragma omp barrier
+if (omp_get_thread_num() == 0) {
+printf("2: Thread# %d: x = %d\n", omp_get_thread_num(),x );
+} else {
+printf("3: Thread# %d: x = %d\n", omp_get_thread_num(),x ); } } return 0;}
+
+
+import java.io.IOException;
+import java.util.StringTokenizer;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class wrdcout {
+
+    public static class TokenizerMapper
+        extends Mapper<LongWritable, Text, Text, IntWritable> {
+
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
+
+        public void map(LongWritable key, Text value, Context context)
+                throws IOException, InterruptedException {
+            StringTokenizer itr=new StringTokenizer(value.toString());
+            while(itr.hasMoreTokens()){
+                word.set(itr.nextToken());
+                context.write(word, one);
+            }
+        }
+    }
+
+    public static class IntSumReducer
+        extends Reducer<Text, IntWritable, Text, IntWritable> {
+
+        private IntWritable result = new IntWritable();
+
+        public void reduce(Text key, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
+            int sum = 0;
+            for (IntWritable val : values) {
+                sum += val.get();
+            }
+            result.set(sum);
+            context.write(key, result);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "word count");
+        job.setJarByClass(wrdcout.class);
+        job.setMapperClass(TokenizerMapper.class);
+        job.setCombinerClass(IntSumReducer.class);
+        job.setReducerClass(IntSumReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
+}
+
+Hadoop 
+
+java -version
+Hadoop version
+ssh localhost
+start-all.sh
+nano input.txt(content of file, ctrl+o enter ctrl+X --> to save file)
+hadoop fs -mkdir /mapreduce
+hadoop fs -put input.txt /mapreduce
+nano wrdcount.java(code for wrdcount,  ctrl+o enter ctrl+X --> to save file)
+javac -classpath $(hadoop classpath) -d . wrdcount.java
+jar cf wc.jar wrdcount*.class
+hadoop jar wc.jar wrdcount /mapreduce/input.txt /mapreduce/output
+hadoop fs -ls /mapreduce/output
+hadoop fs -cat /mapreduce/output/part-r-00000                        
+
+stop-all.sh
