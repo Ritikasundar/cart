@@ -1,0 +1,86 @@
+App.py
+
+from flask import Flask, request, render_template
+
+app = Flask(__name__)
+
+@app.route('/')
+def calculator():
+    return render_template('calculator.html')
+
+@app.route('/result', methods=['POST'])
+def result():
+    try:
+        num1 = float(request.form['num1'])
+        num2 = float(request.form['num2'])
+        operation = request.form['operation']
+
+        if operation == 'add':
+            result = num1 + num2
+        elif operation == 'subtract':
+            result = num1 - num2
+        elif operation == 'multiply':
+            result = num1 * num2
+        elif operation == 'divide':
+            if num2 == 0:
+                return "Error! Division by zero."
+            result = num1 / num2
+        else:
+            return "Invalid operation."
+
+        return f"The result of the operation is: {result}"
+    except ValueError:
+        return "Invalid input. Please enter numeric values."
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+
+Dockerfile
+# Use the official Python image
+ FROM python:3.9-slim 
+# Set the working directory 
+WORKDIR /app 
+# Copy the application code into the container 
+COPY . . 
+# Install Flask RUN 
+RUN pip install flask 
+# Expose the port the app runs on
+ EXPOSE 5000 
+# Run the application 
+CMD ["python", "app.py"]
+
+templates/calculate.html 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Calculator</title>
+</head>
+<body>
+<h1>Simple Calculator</h1>
+<form action="/result" method="post">
+<label for="num1">First Number:</label>
+<input type="number" step="any" id="num1" name="num1" required><br><br>
+<label for="num2">Second Number:</label>
+<input type="number" step="any" id="num2" name="num2" required><br><br>
+<label for="operation">Operation:</label>
+<select id="operation" name="operation" required>
+<option value="add">Add</option>
+<option value="subtract">Subtract</option>
+<option value="multiply">Multiply</option>
+<option value="divide">Divide</option>
+</select><br><br>
+<button type="submit">Calculate</button>
+</form>
+</body> </html>
+
+
+docker login
+docker build -t flask-calculator . 
+docker run -p 5000:5000 flask-calculator 
+http://localhost:5000 
+http://localhost:5000/result
+docker tag flask-calculator id/flask-calculator:latest
+docker push id/flask-calculator:latest
+
+
